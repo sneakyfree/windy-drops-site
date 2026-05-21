@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browse — Windy Drops</title>
+<meta name="description" content="Browse trending drops on Windy Drops — the open marketplace for the Windy ecosystem.">
+<meta property="og:title" content="Browse Windy Drops">
+<meta property="og:description" content="Dashboards, skills, tools, themes — installed with one tap.">
+<meta property="og:url" content="https://windydrops.com/browse">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .browse-shell { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
+  .browse-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 32px; gap: 16px; flex-wrap: wrap; }
+  .browse-header h1 { font-size: 32px; font-weight: 700; }
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .filter-chip { padding: 8px 16px; border: 1px solid var(--card-border); border-radius: 999px; background: transparent; color: var(--fg); cursor: pointer; font: inherit; font-size: 14px; }
+  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .filter-chip:hover:not(.active) { border-color: var(--accent); }
+  .search-input { flex: 1; min-width: 200px; padding: 10px 14px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--fg); font: inherit; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 20px; text-decoration: none; color: var(--fg); transition: border-color 0.15s, transform 0.15s; }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+  .card-name { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .card-subtitle { color: var(--muted); font-size: 14px; line-height: 1.4; margin-bottom: 16px; min-height: 40px; }
+  .card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
+  .empty { text-align: center; padding: 64px 16px; color: var(--muted); }
+  .empty h2 { font-weight: 600; margin-bottom: 8px; }
+  .loading { text-align: center; padding: 64px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="browse-shell">
+  <div class="browse-header">
+    <h1>Browse Drops</h1>
+    <input id="search" class="search-input" type="search" placeholder="Search drops…" aria-label="Search">
+  </div>
+  <div class="filter-bar" id="filters">
+    <button class="filter-chip active" data-type="">All</button>
+    <button class="filter-chip" data-type="control-panel-template">Dashboards</button>
+    <button class="filter-chip" data-type="skill">Skills</button>
+    <button class="filter-chip" data-type="tool">Tools</button>
+    <button class="filter-chip" data-type="theme">Themes</button>
+    <button class="filter-chip" data-type="voice-pack">Voice packs</button>
+    <button class="filter-chip" data-type="workflow">Workflows</button>
+  </div>
+  <div id="grid" class="loading">Loading drops…</div>
+</div>
+
+<script>
+const REGISTRY = window.__WINDY_REGISTRY__ || "https://api.windydrops.com";
+const grid = document.getElementById("grid");
+const filterBar = document.getElementById("filters");
+const search = document.getElementById("search");
+let currentType = "";
+let currentQ = "";
+let debounceTimer;
+
+function resolveI18n(value) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value[value.default] || Object.values(value).find(v => typeof v === "string") || "";
+}
+
+function escape(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+}
+
+async function load() {
+  grid.className = "loading";
+  grid.textContent = "Loading drops…";
+  const url = new URL(`${REGISTRY}/api/v1/drops`);
+  if (currentType) url.searchParams.set("type", currentType);
+  if (currentQ) url.searchParams.set("q", currentQ);
+  url.searchParams.set("limit", "30");
+
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`registry HTTP ${r.status}`);
+    const body = await r.json();
+    render(body.items || []);
+  } catch (e) {
+    grid.className = "empty";
+    grid.innerHTML = `<h2>Couldn't load drops</h2><p>${escape(e.message)}</p>`;
+  }
+}
+
+function render(items) {
+  if (!items.length) {
+    grid.className = "empty";
+    grid.innerHTML = "<h2>No drops yet</h2><p>Be the first — <code>npm install -g @windy/drops-sdk</code> and publish one.</p>";
+    return;
+  }
+  grid.className = "grid";
+  grid.innerHTML = items.map(it => {
+    const name = escape(resolveI18n(it.name) || it.id);
+    const subtitle = escape(resolveI18n(it.subtitle) || "");
+    const installs = it.install_count || 0;
+    const forks = it.fork_count || 0;
+    return `<a class="card" href="/d/${escape(it.id)}">
+      <div class="card-type">${escape(it.type)}</div>
+      <div class="card-name">${name}</div>
+      <div class="card-subtitle">${subtitle}</div>
+      <div class="card-meta">
+        <span>${installs} installs</span>
+        ${forks > 0 ? `<span>${forks} forks</span>` : ""}
+        <span>v${escape(it.current_version)}</span>
+      </div>
+    </a>`;
+  }).join("");
+}
+
+filterBar.addEventListener("click", e => {
+  if (e.target.matches(".filter-chip")) {
+    document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    e.target.classList.add("active");
+    currentType = e.target.dataset.type;
+    load();
+  }
+});
+
+search.addEventListener("input", e => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    currentQ = e.target.value.trim();
+    load();
+  }, 250);
+});
+
+load();
+</script>
+</body>
+</html>

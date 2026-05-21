@@ -1,0 +1,4 @@
+# CF Pages: route /@<handle> → /_at/<handle> (Pages Function).
+# The trailing /:splat captures additional path segments (e.g., /me/library
+# subpaths) so future routes can compose without touching the redirect.
+/@:handle  /_at/:handle  200

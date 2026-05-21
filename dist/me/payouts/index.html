@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Payouts — Windy Drops</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .shell { max-width: 720px; margin: 0 auto; padding: 96px 24px; text-align: center; }
+  .shell h1 { font-size: 32px; margin-bottom: 16px; }
+  .shell p { color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+  .stripe-cta { display: inline-block; padding: 12px 24px; background: #635bff; color: white; border-radius: 8px; text-decoration: none; }
+  .note { font-size: 13px; opacity: .7; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="shell">
+<h1>Creator Payouts</h1>
+<p>Connect Stripe to receive tips on your drops. <strong>0% platform cut</strong> — the full amount (minus Stripe's ~3% processing) goes to you.</p>
+<a class="stripe-cta" href="/api/stripe/connect" id="connect-cta">Connect Stripe →</a>
+<p class="note">Sign in first. Once connected, Stripe handles KYC, tax forms, and bank linkage. Refunds and tax 1099s come through your Stripe dashboard.</p>
+<p class="note">Per ADR-053: tip jars ship in v1; paid drops + royalty payouts ship in v1.1.</p>
+</div>
+<script>
+// The /api/stripe/connect path isn't a CF Pages route — it 302s to the registry's
+// POST /api/v1/me/stripe/connect once we have an auth token. Stubbed for now.
+document.getElementById("connect-cta").addEventListener("click", (e) => {
+  e.preventDefault();
+  alert("Sign-in flow (Pro JWT) is the next strand. Until then, see windy-registry/POST /api/v1/me/stripe/connect.");
+});
+</script>
+</body>
+</html>
