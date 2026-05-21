@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — Windy Drops</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .auth-shell { max-width: 480px; margin: 0 auto; padding: 96px 24px; }
+  .auth-shell h1 { font-size: 28px; margin-bottom: 8px; text-align: center; }
+  .auth-shell .sub { color: var(--muted); margin-bottom: 32px; text-align: center; }
+  .pro-btn { display:block; width:100%; padding:14px; background:var(--accent); color:white; border:0; border-radius:8px; font-weight:600; cursor:pointer; font-size:15px; text-decoration:none; text-align:center; margin-bottom: 16px; }
+  .divider { color: var(--muted); text-align: center; font-size: 13px; margin: 16px 0; position: relative; }
+  .divider::before, .divider::after { content:''; position:absolute; top:50%; width:40%; height:1px; background:var(--card-border); }
+  .divider::before { left:0; } .divider::after { right:0; }
+  textarea { width:100%; padding:12px; background:var(--card-bg); border:1px solid var(--card-border); border-radius:8px; color:var(--fg); font-family: ui-monospace, monospace; font-size: 12px; min-height: 100px; resize: vertical; }
+  .paste-btn { display:block; width:100%; padding:12px; background:transparent; color:var(--fg); border:1px solid var(--card-border); border-radius:8px; cursor:pointer; margin-top:12px; font-weight:600; }
+  .help { font-size: 12px; color: var(--muted); margin-top: 16px; line-height: 1.5; }
+  .help code { background: var(--card-bg); padding: 1px 6px; border-radius: 4px; }
+  .error { color: #ff6b6b; font-size: 13px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="auth-shell">
+<h1>Sign in to Windy Drops</h1>
+<p class="sub">Required to install, rate, tip, or follow.</p>
+
+<a id="pro-btn" class="pro-btn" href="#" style="display:none;">Sign in with Windy →</a>
+
+<div id="oauth-fallback" class="divider">paste your JWT instead</div>
+
+<div id="paste-flow">
+  <textarea id="jwt-input" placeholder="Paste your JWT (Pro RS256 or Eternitas EPT)…" spellcheck="false" autocomplete="off"></textarea>
+  <button id="paste-btn" class="paste-btn">Sign in with token →</button>
+  <div id="error" class="error" hidden></div>
+  <p class="help">
+    CLI users — your JWT lives in <code>~/.windy/credentials.json</code> under
+    <code>eternitas.ept</code> (for agents) or your Pro account's session token
+    (for humans). Paste the raw token string (no "Bearer " prefix).
+  </p>
+  <p class="help">
+    Pro OAuth (one-click sign-in) lands once <code>account.windyword.ai</code>
+    exposes an OAuth endpoint. Until then, paste-the-JWT is the v1 path.
+  </p>
+</div>
+
+</div>
+<script src="/auth.js"></script>
+<script>
+const PRO_OAUTH_URL = window.__WINDY_PRO_OAUTH__ || ""; // set to enable
+
+const proBtn = document.getElementById("pro-btn");
+if (PRO_OAUTH_URL) {
+  proBtn.style.display = "block";
+  proBtn.href = `${PRO_OAUTH_URL}?redirect_uri=${encodeURIComponent("https://windydrops.com/auth/callback")}&state=${Math.random().toString(36).slice(2)}`;
+}
+
+const pasteBtn = document.getElementById("paste-btn");
+const input = document.getElementById("jwt-input");
+const errorEl = document.getElementById("error");
+pasteBtn.addEventListener("click", () => {
+  const token = input.value.trim();
+  if (!token || token.split(".").length !== 3) {
+    errorEl.textContent = "That doesn't look like a JWT (must be three dot-separated segments).";
+    errorEl.hidden = false;
+    return;
+  }
+  WindyAuth.setToken(token);
+  WindyAuth.finishSignIn();
+});
+</script>
+</body>
+</html>

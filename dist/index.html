@@ -51,11 +51,21 @@
                 <a href="/browse">Browse</a>
                 <a href="/me/library">My library</a>
                 <a href="/me/payouts">Creator payouts</a>
+                <a href="#" id="auth-link">Sign in</a>
                 <a href="https://github.com/sneakyfree/windy-drops">Platform repo</a>
-                <a href="https://github.com/sneakyfree/windy-drops-site">Site source</a>
             </nav>
             <p class="fine">MIT-licensed. Built for grandmas, gamers, Gen Z, and everyone in between.</p>
         </footer>
     </main>
+    <script src="/auth.js"></script>
+    <script>
+      const al = document.getElementById('auth-link');
+      if (WindyAuth.isSignedIn()) {
+        al.textContent = 'Sign out';
+        al.href = '/auth/logout';
+      } else {
+        al.onclick = function(e) { e.preventDefault(); WindyAuth.signIn('/'); };
+      }
+    </script>
 </body>
 </html>

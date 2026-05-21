@@ -125,15 +125,59 @@ function renderProfile(p: AuthorProfile, drops: DropSummary[]): string {
     <div class="handle">@${handle}</div>
     <h1 class="author-name">${name}</h1>
     <div class="author-meta">
-      <span>${p.follower_count} followers</span>
+      <span id="follower-count">${p.follower_count} followers</span>
       <span>${p.drop_count} drops</span>
       ${tips}
       ${integrity}
     </div>
+    <!-- F8: follow/unfollow button -->
+    <button id="follow-btn" style="margin-top:16px;padding:10px 20px;background:var(--accent);color:white;border:0;border-radius:6px;font-weight:600;cursor:pointer;display:none;">Follow</button>
   </div>
   <h2 style="font-size:18px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Drops</h2>
   <div class="grid">${dropCards}</div>
 </div>
+
+<script src="/auth.js"></script>
+<script>
+// F8: Follow / Unfollow button (signed-in only).
+const handle = ${JSON.stringify(handle)};
+const btn = document.getElementById('follow-btn');
+async function refreshFollowState() {
+  if (!WindyAuth.isSignedIn()) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Sign in to follow';
+    btn.onclick = function() { WindyAuth.signIn(window.location.pathname); };
+    return;
+  }
+  try {
+    const body = await WindyAuth.get('/api/v1/me/follows', { auth: true });
+    const following = body.items.some(function(f) { return f.followed_handle === handle; });
+    btn.style.display = 'inline-block';
+    if (following) {
+      btn.textContent = 'Following ✓ (click to unfollow)';
+      btn.style.background = 'transparent';
+      btn.style.border = '1px solid var(--accent)';
+      btn.style.color = 'var(--accent)';
+      btn.onclick = async function() {
+        await WindyAuth.del('/api/v1/me/follows/' + encodeURIComponent(handle));
+        refreshFollowState();
+      };
+    } else {
+      btn.textContent = 'Follow';
+      btn.style.background = 'var(--accent)';
+      btn.style.border = '0';
+      btn.style.color = 'white';
+      btn.onclick = async function() {
+        await WindyAuth.post('/api/v1/me/follows', { author_handle: handle });
+        refreshFollowState();
+      };
+    }
+  } catch (e) {
+    // Not signed in or network — leave button hidden.
+  }
+}
+refreshFollowState();
+</script>
 </body>
 </html>`;
 }
