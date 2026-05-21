@@ -7,9 +7,18 @@ Marketing site for **Windy Drops** — the open marketplace for the Windy ecosys
 
 ## Stack
 
-Vanilla HTML + CSS — deliberately minimal until the brand language settles. Cloudflare Pages-hosted, statically built (no build step required for v0).
+Vanilla HTML + CSS + a few Cloudflare Pages Functions for dynamic routes (drop pages, oEmbed). The landing page is intentionally static.
 
-A richer site will come once the platform copy + visual language is locked. Until then this is a one-page landing that names the thing, sets expectation, and routes interested visitors to the right surfaces.
+## Routes
+
+| Path | Renderer | Strand |
+|---|---|---|
+| `/` | `dist/index.html` (static) | M0 |
+| `/d/{id}` | `functions/d/[id].ts` — fetches registry, renders OG-rich card so the URL unfurls cleanly in Twitter / Discord / iMessage / Slack | WD-24 |
+| `/browse`, `/search`, `/@<handle>`, `/me/library`, `/me/payouts` | (future) marketplace UI | WD-26 |
+| `/integrate/{id}` | (future) auth-gated install flow | WD-26 |
+
+A richer site will come once the platform copy + visual language is locked. Until then this is a one-page landing plus the share-URL unfurl handler.
 
 ## Local preview
 

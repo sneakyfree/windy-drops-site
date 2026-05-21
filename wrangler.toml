@@ -1,0 +1,7 @@
+name = "windy-drops-site"
+compatibility_date = "2026-05-21"
+pages_build_output_dir = "dist"
+
+# CF Pages Function env. Override at deploy with `wrangler pages deploy --binding`.
+[vars]
+REGISTRY_URL = "https://api.windydrops.com"
