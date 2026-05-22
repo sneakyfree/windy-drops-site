@@ -57,11 +57,19 @@ jobs:
           status=$(curl -sS -o /dev/null -w "%{http_code}" -L https://windydrops.com/browse)
           echo "windydrops.com/browse: HTTP $status"
           [ "$status" = "200" ] || exit 1
-          # Check the /browse page is the NEW marketplace UI, not the
-          # landing page falling through (the bug we just fixed).
-          if curl -fsS https://windydrops.com/browse | grep -q "browse-shell"; then
+          # Check the /browse page is the marketplace UI, not the
+          # landing falling through. `-L` follows the 308 that CF Pages
+          # serves for /browse → /browse/ (directory normalization).
+          if curl -fsSL https://windydrops.com/browse | grep -q "browse-shell"; then
             echo "✓ /browse serves the marketplace UI"
           else
-            echo "✗ /browse falling through to landing — wrangler.toml config issue?"
+            echo "✗ /browse not serving marketplace UI"
+            exit 1
+          fi
+          # OG unfurl check for the canonical drop detail page.
+          if curl -fsSL https://windydrops.com/d/windy-echo-hq | grep -q "Echo HQ"; then
+            echo "✓ /d/windy-echo-hq function resolves"
+          else
+            echo "✗ /d/windy-echo-hq function broken"
             exit 1
           fi
