@@ -1,0 +1,67 @@
+name: Deploy to Cloudflare Pages
+
+# Auto-deploys windydrops.com on every push to main.
+#
+# Token: WindyProCIDeployToken (Cloudflare Pages: Edit, no IP filter).
+# Stored as repo secret CF_PAGES_TOKEN. Same token used by windy-pro's
+# deploy-web.yml — see kit-army-config/ACCESS_LOCKBOX.md §Cloudflare for
+# rotation calendar (expires 2026-10-31).
+#
+# Per feedback_wrangler_pages_deploy_dir: ALWAYS deploy `dist`, never `.`.
+# CF Pages Functions live at `functions/` at the repo root and are picked
+# up automatically when the wrangler.toml sets `pages_build_output_dir = "dist"`.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.repository == 'sneakyfree/windy-drops-site'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sanity check site files
+        run: |
+          test -f dist/index.html
+          test -f dist/browse/index.html
+          test -f dist/styles.css
+          test -d functions/d
+          test -d functions/integrate
+          echo "Files present:"
+          ls -la dist/
+          echo "Functions:"
+          ls functions/
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_PAGES_TOKEN }}
+          accountId: 193b347aedeaafe35de0b5a534b2d9aa
+          # `wrangler.toml` declares pages_build_output_dir = "dist"; functions/
+          # at the repo root is auto-discovered by wrangler.
+          command: pages deploy --project-name=windy-drops-site --branch=main --commit-dirty=true
+
+      - name: Smoke test
+        run: |
+          sleep 25
+          status=$(curl -sS -o /dev/null -w "%{http_code}" -L https://windydrops.com)
+          echo "windydrops.com: HTTP $status"
+          [ "$status" = "200" ] || exit 1
+          status=$(curl -sS -o /dev/null -w "%{http_code}" -L https://windydrops.com/browse)
+          echo "windydrops.com/browse: HTTP $status"
+          [ "$status" = "200" ] || exit 1
+          # Check the /browse page is the NEW marketplace UI, not the
+          # landing page falling through (the bug we just fixed).
+          if curl -fsS https://windydrops.com/browse | grep -q "browse-shell"; then
+            echo "✓ /browse serves the marketplace UI"
+          else
+            echo "✗ /browse falling through to landing — wrangler.toml config issue?"
+            exit 1
+          fi
