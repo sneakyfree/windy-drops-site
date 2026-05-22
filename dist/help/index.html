@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help — Windy Drops</title>
+<meta name="description" content="How to install drops, switch between them, and (if you build software) publish your own.">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .help-shell { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .help-shell h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+  .help-shell h2 { font-size: 20px; font-weight: 600; margin: 40px 0 12px; }
+  .help-shell h3 { font-size: 17px; font-weight: 600; margin: 24px 0 8px; }
+  .help-shell p { font-size: 15px; line-height: 1.6; color: var(--fg); margin-bottom: 12px; }
+  .help-shell ul, .help-shell ol { margin: 0 0 12px 24px; line-height: 1.6; color: var(--fg); }
+  .help-shell li { margin-bottom: 6px; }
+  .help-shell code { background: var(--accent-soft); padding: 2px 8px; border-radius: 4px; font-size: 13px; color: var(--accent); }
+  .help-shell pre {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  .help-shell pre code { background: transparent; padding: 0; color: var(--fg); }
+  .toc {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px 24px;
+    margin-bottom: 32px;
+  }
+  .toc h2 { margin-top: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .toc ul { margin: 0; padding-left: 16px; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<main class="help-shell">
+  <h1>Help</h1>
+
+  <div class="toc">
+    <h2>Sections</h2>
+    <ul>
+      <li><a href="#using">Using drops (no coding required)</a></li>
+      <li><a href="#authoring">Authoring drops (some coding)</a></li>
+      <li><a href="#trouble">Common questions</a></li>
+    </ul>
+  </div>
+
+  <h2 id="using">Using drops</h2>
+
+  <h3>What is a drop?</h3>
+  <p>A drop is something you can add to your Windy apps — a dashboard, a skill an agent can use, a theme, etc. Drops are tiny + safe by default + work the same way across every Windy product.</p>
+
+  <h3>How do I install one?</h3>
+  <p>Open Windy Word and click the pulsing <strong>🖥️ Panel</strong> tile. That opens the Control Panel. Click <strong>+ Get more drops</strong> in the top-right and pick the drop you want. It'll install in a second or two. To switch between drops you've installed, use the drop name button in the top-left of the Control Panel.</p>
+
+  <h3>Do I need a Windy account?</h3>
+  <p>No. The two built-in drops (Echo HQ + Glance) work without any account. If you want to install drops from the marketplace, the Control Panel handles auth for you using your Windy Word session — you'll just stay signed in across drops you install.</p>
+
+  <h3>Where do my installed drops live?</h3>
+  <p>On your computer, inside Windy Word's app data folder. Uninstalling a drop removes it cleanly. Echo HQ is built into Windy Word and can't be removed (it's the fallback when nothing else is selected).</p>
+
+  <h2 id="authoring">Authoring drops</h2>
+
+  <h3>What does it take?</h3>
+  <p>If you can write HTML + a little JavaScript, you can ship a Control Panel dashboard. If you can do more, you can ship richer drop types (skills, themes, voice-packs, workflows — coming as their consumer surfaces land).</p>
+
+  <h3>Install the CLI</h3>
+  <pre><code>npm install -g @windy/drops-sdk</code></pre>
+
+  <h3>Scaffold a starter</h3>
+  <pre><code>windy-drops new my-first-drop --type control-panel-template
+cd my-first-drop
+# Edit SKILL.md (set your handle + id), render.js (the dashboard), styles.css
+windy-drops validate .
+windy-drops bundle .</code></pre>
+
+  <h3>Fork an existing drop</h3>
+  <pre><code>windy-drops fork windy-glance your-handle-my-glance
+# Edit + republish</code></pre>
+
+  <h3>Publish to the marketplace</h3>
+  <pre><code>windy-drops publish .</code></pre>
+  <p>Publishing signs your manifest with your Eternitas Passport and uploads the bundle to the registry. First-time setup walks you through getting a Passport.</p>
+
+  <h3>Get tipped</h3>
+  <p>Connect Stripe at <a href="/me/payouts">/me/payouts</a> to receive tips from people who install your drops. The platform takes 0% — tips go directly to you.</p>
+
+  <h2 id="trouble">Common questions</h2>
+
+  <h3>The drop selector doesn't open in the Control Panel.</h3>
+  <p>Make sure you're running the latest Windy Word. The drop-library bridge was added in version 1.7+; older versions show the built-in Echo HQ only. Update from <a href="https://downloads.windyword.ai/">downloads.windyword.ai</a>.</p>
+
+  <h3>"The marketplace isn't available right now."</h3>
+  <p>Usually means your computer can't reach the registry. Check your internet connection. If that's fine, the registry might be having a moment — try again in a minute.</p>
+
+  <h3>How do I uninstall a drop?</h3>
+  <p>Uninstall via the Control Panel ships in a follow-up release. For now, drops you install stay in your library until you reset Windy Word's app data.</p>
+
+  <h3>How does the platform stay open?</h3>
+  <p>The drop spec is a JSON Schema. Both SDKs (TypeScript + Python) are MIT-licensed. Drops themselves are also MIT by default. Anyone can write a host that consumes the same drops the Windy Control Panel does.</p>
+
+  <p style="margin-top: 48px; color: var(--muted);">Stuck? Open an issue at <a href="https://github.com/sneakyfree/windy-drops/issues">sneakyfree/windy-drops/issues</a>.</p>
+</main>
+</body>
+</html>
