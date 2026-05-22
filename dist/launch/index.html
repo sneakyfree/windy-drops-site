@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windy Drops is live — the open marketplace for the Windy ecosystem</title>
+<meta name="description" content="Two official drops, one shared protocol, and a path for the community to add more. Welcome to Windy Drops v1.">
+<meta property="og:title" content="Windy Drops is live">
+<meta property="og:description" content="Two official drops, one shared protocol, and a path for the community to add more.">
+<meta property="og:url" content="https://windydrops.com/launch">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .launch-shell { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+  .launch-shell h1 { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+  .launch-shell h2 { font-size: 24px; font-weight: 600; margin: 48px 0 16px; }
+  .launch-shell p { font-size: 16px; line-height: 1.6; color: var(--fg); margin-bottom: 16px; }
+  .launch-shell p.subtitle { font-size: 20px; color: var(--muted); margin-bottom: 32px; }
+  .launch-shell ul { margin: 0 0 16px 24px; line-height: 1.6; color: var(--fg); }
+  .launch-shell li { margin-bottom: 8px; }
+  .launch-shell code { background: var(--accent-soft); padding: 2px 8px; border-radius: 4px; font-size: 14px; color: var(--accent); }
+  .drop-feature {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  @media (min-width: 640px) {
+    .drop-feature { grid-template-columns: 1fr 1fr; }
+  }
+  .drop-feature .feature-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .drop-feature .feature-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .drop-feature .feature-card p { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+  .drop-feature .feature-card a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .drop-feature .feature-card a:hover { text-decoration: underline; }
+  .cta {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    margin: 16px 12px 16px 0;
+  }
+  .cta:hover { filter: brightness(1.1); }
+  .cta.secondary { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--fg); }
+</style>
+</head>
+<body>
+<main class="launch-shell">
+  <h1>Windy Drops is live.</h1>
+  <p class="subtitle">Two official dashboards. One shared protocol. A path for the community to add more.</p>
+
+  <p>Today we're launching Windy Drops — the open marketplace for the Windy ecosystem. Drops are bite-sized things you can add to your Windy apps: dashboards, skills, tools, themes. The first surface is the Control Panel inside Windy Word, and it ships with two drops you can use right now.</p>
+
+  <h2>What's in the catalog today</h2>
+
+  <div class="drop-feature">
+    <div class="feature-card">
+      <h3>Echo HQ</h3>
+      <p>The cyberpunk-vitals dashboard. Big sparklines, dense fleet grid, the whole "kit army" feel. Ships built-in with Windy Word so it works offline from day one.</p>
+      <a href="/d/windy-echo-hq">See it on the marketplace →</a>
+    </div>
+    <div class="feature-card">
+      <h3>Glance</h3>
+      <p>Echo HQ's quieter sibling. Soft pastels, generous whitespace, no charts. Four big numbers + a status line that says "All quiet" or "Computer's hot". Same data, different temperament.</p>
+      <a href="/d/windy-glance">See it on the marketplace →</a>
+    </div>
+  </div>
+
+  <h2>How to use it</h2>
+
+  <p>If you have Windy Word installed, open it and look for the pulsing <strong>🖥️ Panel</strong> tile. Click it — that opens the Control Panel. Echo HQ is there waiting. To try Glance, click <strong>+ Get more drops</strong> in the top-right and tap Install. Switch between them from the drop selector in the top-left.</p>
+
+  <p>No browser, no JWT, no terminal, no GitHub account.</p>
+
+  <p style="margin-top: 32px;">
+    <a class="cta" href="https://downloads.windyword.ai/">Download Windy Word</a>
+    <a class="cta secondary" href="/browse">Browse drops on the web</a>
+  </p>
+
+  <h2>If you build software</h2>
+
+  <p>Windy Drops is open. The drop spec is a <code>windy.drop.v1</code> JSON Schema. Authoring is a CLI:</p>
+
+  <p>
+    <code>npm install -g @windy/drops-sdk</code><br>
+    <code>windy-drops new my-dashboard --type control-panel-template</code><br>
+    <code>windy-drops validate ./my-dashboard</code><br>
+    <code>windy-drops publish ./my-dashboard</code>
+  </p>
+
+  <p>You can also fork either of the official drops as a starting point:</p>
+
+  <p><code>windy-drops fork windy-glance my-handle-my-glance</code></p>
+
+  <h2>What's next</h2>
+
+  <ul>
+    <li><strong>More drop types.</strong> v1 ships with control-panel dashboards working end-to-end. Skills (agent tools), themes, voice-packs, and workflows are spec-reserved + will go live as their consumer surfaces ship.</li>
+    <li><strong>More surfaces.</strong> Windy Chat trending tab, Windy Mind persona picker, more places where a drop can land.</li>
+    <li><strong>Paid drops + tips.</strong> Tip jars are live for free drops today (creators connect Stripe to receive). Paid drops land in v1.1.</li>
+    <li><strong>AI-assisted authoring.</strong> <code>windy-drops new --ai</code> via Windy Mind. v1.1.</li>
+  </ul>
+
+  <p style="color: var(--muted); margin-top: 48px;">Built by Kit Army Windstorm. Drops are MIT-licensed. The platform is open — fork it, remix it, submit drops.</p>
+</main>
+</body>
+</html>
